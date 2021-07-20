@@ -20,7 +20,7 @@ func Log(format string, args ...interface{}) {
 type Registry struct {
 	URL    string
 	Client *http.Client
-	Log    logr.Logger
+	log    logr.Logger
 	opts   *Options
 }
 
@@ -111,7 +111,7 @@ func (r *Registry) url(pathTemplate string, args ...interface{}) string {
 
 func (r *Registry) Ping() error {
 	url := r.url("/v2/")
-	r.Log.Info("registry.ping url=%s", url)
+	r.log.Info("registry.ping url=%s", url)
 	resp, err := r.Client.Get(url)
 	if resp != nil {
 		defer resp.Body.Close()
