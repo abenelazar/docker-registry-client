@@ -91,7 +91,7 @@ func newFromTransport(registryURL, username, password string, transport http.Rou
 		Client: &http.Client{
 			Transport: transport,
 		},
-		Log:  opts.Log.V(opts.LogLevel),
+		log:  opts.Log.V(opts.LogLevel),
 		opts: opts,
 	}
 
