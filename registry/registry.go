@@ -6,16 +6,9 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/go-logr/logr"
 )
-
-type LogfCallback func(format string, args ...interface{})
-
-/*
- * Discard log messages silently.
- */
-func Quiet(format string, args ...interface{}) {
-	/* discard logs */
-}
 
 /*
  * Pass log messages along to Go's "log" module.
@@ -27,7 +20,13 @@ func Log(format string, args ...interface{}) {
 type Registry struct {
 	URL    string
 	Client *http.Client
-	Logf   LogfCallback
+	Log    logr.Logger
+	opts   *Options
+}
+
+type Options struct {
+	DisablePing bool
+	LogLevel    int
 }
 
 /*
@@ -38,10 +37,9 @@ type Registry struct {
  * This passes http.DefaultTransport to WrapTransport when creating the
  * http.Client.
  */
-func New(registryURL, username, password string) (*Registry, error) {
+func New(registryURL, username, password string, opts *Options) (*Registry, error) {
 	transport := http.DefaultTransport
-
-	return newFromTransport(registryURL, username, password, transport, Log)
+	return newFromTransport(registryURL, username, password, transport, opts, Log)
 }
 
 /*
@@ -83,7 +81,7 @@ func WrapTransport(transport http.RoundTripper, url, username, password string) 
 	return errorTransport
 }
 
-func newFromTransport(registryURL, username, password string, transport http.RoundTripper, logf LogfCallback) (*Registry, error) {
+func newFromTransport(registryURL, username, password string, transport http.RoundTripper, opts *Options, logger *logr.Logger) (*Registry, error) {
 	url := strings.TrimSuffix(registryURL, "/")
 	transport = WrapTransport(transport, url, username, password)
 	registry := &Registry{
@@ -91,14 +89,16 @@ func newFromTransport(registryURL, username, password string, transport http.Rou
 		Client: &http.Client{
 			Transport: transport,
 		},
-		Logf: logf,
+		Log:  logger,
+		opts: opts,
 	}
 
-	if err := registry.Ping(); err != nil {
-		return nil, err
+	if opts.DisablePing {
+		return registry, nil
 	}
 
-	return registry, nil
+	err := registry.Ping()
+	return registry, err
 }
 
 func (r *Registry) url(pathTemplate string, args ...interface{}) string {
@@ -109,7 +109,7 @@ func (r *Registry) url(pathTemplate string, args ...interface{}) string {
 
 func (r *Registry) Ping() error {
 	url := r.url("/v2/")
-	r.Logf("registry.ping url=%s", url)
+	r.Log.Info("registry.ping url=%s", url)
 	resp, err := r.Client.Get(url)
 	if resp != nil {
 		defer resp.Body.Close()
