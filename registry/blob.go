@@ -11,7 +11,7 @@ import (
 
 func (registry *Registry) DownloadBlob(repository string, digest digest.Digest) (io.ReadCloser, error) {
 	url := registry.url("/v2/%s/blobs/%s", repository, digest)
-	registry.Log.V(10).Info("registry.blob.download", "url", url, "repository", repository, "digest", digest)
+	registry.Log.Info("registry.blob.download", "url", url, "repository", repository, "digest", digest)
 
 	resp, err := registry.Client.Get(url)
 	if err != nil {
@@ -30,7 +30,7 @@ func (registry *Registry) UploadBlob(repository string, digest digest.Digest, co
 	q.Set("digest", digest.String())
 	uploadURL.RawQuery = q.Encode()
 
-	registry.Log.V(10).Info("registry.blob.upload", "url", uploadURL, "repository", repository, "digest", digest)
+	registry.Log.Info("registry.blob.upload", "url", uploadURL, "repository", repository, "digest", digest)
 
 	upload, err := http.NewRequest("PUT", uploadURL.String(), content)
 	if err != nil {
@@ -44,7 +44,7 @@ func (registry *Registry) UploadBlob(repository string, digest digest.Digest, co
 
 func (registry *Registry) HasBlob(repository string, digest digest.Digest) (bool, error) {
 	checkURL := registry.url("/v2/%s/blobs/%s", repository, digest)
-	registry.Log.V(10).Info("registry.blob.check", "url", checkURL, "repository", repository, "digest", digest)
+	registry.Log.Info("registry.blob.check", "url", checkURL, "repository", repository, "digest", digest)
 
 	resp, err := registry.Client.Head(checkURL)
 	if resp != nil {
@@ -71,7 +71,7 @@ func (registry *Registry) HasBlob(repository string, digest digest.Digest) (bool
 
 func (registry *Registry) BlobMetadata(repository string, digest digest.Digest) (distribution.Descriptor, error) {
 	checkURL := registry.url("/v2/%s/blobs/%s", repository, digest)
-	registry.Log.V(10).Info("registry.blob.check", "url", checkURL, "repository", repository, "digest", digest)
+	registry.Log.Info("registry.blob.check", "url", checkURL, "repository", repository, "digest", digest)
 
 	resp, err := registry.Client.Head(checkURL)
 	if resp != nil {
@@ -89,7 +89,7 @@ func (registry *Registry) BlobMetadata(repository string, digest digest.Digest) 
 
 func (registry *Registry) initiateUpload(repository string) (*url.URL, error) {
 	initiateURL := registry.url("/v2/%s/blobs/uploads/", repository)
-	registry.Log.V(10).Info("registry.blob.initiate-upload", "url", initiateURL, "repository", repository)
+	registry.Log.Info("registry.blob.initiate-upload", "url", initiateURL, "repository", repository)
 
 	resp, err := registry.Client.Post(initiateURL, "application/octet-stream", nil)
 	if resp != nil {

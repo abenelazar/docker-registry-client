@@ -25,6 +25,7 @@ type Registry struct {
 }
 
 type Options struct {
+	Log         logr.Logger
 	DisablePing bool
 	LogLevel    int
 }
@@ -39,7 +40,7 @@ type Options struct {
  */
 func New(registryURL, username, password string, opts *Options) (*Registry, error) {
 	transport := http.DefaultTransport
-	return newFromTransport(registryURL, username, password, transport, opts, Log)
+	return newFromTransport(registryURL, username, password, transport, opts)
 }
 
 /*
@@ -81,15 +82,16 @@ func WrapTransport(transport http.RoundTripper, url, username, password string) 
 	return errorTransport
 }
 
-func newFromTransport(registryURL, username, password string, transport http.RoundTripper, opts *Options, logger *logr.Logger) (*Registry, error) {
+func newFromTransport(registryURL, username, password string, transport http.RoundTripper, opts *Options) (*Registry, error) {
 	url := strings.TrimSuffix(registryURL, "/")
 	transport = WrapTransport(transport, url, username, password)
+
 	registry := &Registry{
 		URL: url,
 		Client: &http.Client{
 			Transport: transport,
 		},
-		Log:  logger,
+		Log:  opts.Log.V(opts.LogLevel),
 		opts: opts,
 	}
 

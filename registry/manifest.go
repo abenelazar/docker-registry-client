@@ -13,7 +13,7 @@ import (
 
 func (registry *Registry) Manifest(repository, reference string) (*schema1.SignedManifest, error) {
 	url := registry.url("/v2/%s/manifests/%s", repository, reference)
-	registry.Log.V(10).Info("registry.manifest.get", "url", url, "repository", repository, "reference", reference)
+	registry.Log.Info("registry.manifest.get", "url", url, "repository", repository, "reference", reference)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -43,7 +43,7 @@ func (registry *Registry) Manifest(repository, reference string) (*schema1.Signe
 
 func (registry *Registry) ManifestV2(repository, reference string) (*schema2.DeserializedManifest, error) {
 	url := registry.url("/v2/%s/manifests/%s", repository, reference)
-	registry.Log.V(10).Info("registry.manifest.get", "url", url, "repository", repository, "reference", reference)
+	registry.Log.Info("registry.manifest.get", "url", url, "repository", repository, "reference", reference)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -72,8 +72,8 @@ func (registry *Registry) ManifestV2(repository, reference string) (*schema2.Des
 
 func (registry *Registry) ManifestDigest(repository, reference string) (digest.Digest, error) {
 	url := registry.url("/v2/%s/manifests/%s", repository, reference)
-	registry.Log.V(10).Info("registry.manifest.head url=%s repository=%s reference=%s", url, repository, reference)
-	registry.Log.V(10).Info("registry.manifest.head", "url", url, "repository", repository, "reference", reference)
+	registry.Log.Info("registry.manifest.head url=%s repository=%s reference=%s", url, repository, reference)
+	registry.Log.Info("registry.manifest.head", "url", url, "repository", repository, "reference", reference)
 
 	resp, err := registry.Client.Head(url)
 	if resp != nil {
@@ -87,7 +87,7 @@ func (registry *Registry) ManifestDigest(repository, reference string) (digest.D
 
 func (registry *Registry) DeleteManifest(repository string, digest digest.Digest) error {
 	url := registry.url("/v2/%s/manifests/%s", repository, digest)
-	registry.Log.V(10).Info("registry.manifest.delete url=%s repository=%s reference=%s", url, repository, digest)
+	registry.Log.Info("registry.manifest.delete url=%s repository=%s reference=%s", url, repository, digest)
 
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
@@ -105,7 +105,7 @@ func (registry *Registry) DeleteManifest(repository string, digest digest.Digest
 
 func (registry *Registry) PutManifest(repository, reference string, manifest distribution.Manifest) error {
 	url := registry.url("/v2/%s/manifests/%s", repository, reference)
-	registry.Log.V(10).Info("registry.manifest.put url=%s repository=%s reference=%s", url, repository, reference)
+	registry.Log.Info("registry.manifest.put url=%s repository=%s reference=%s", url, repository, reference)
 
 	mediaType, payload, err := manifest.Payload()
 	if err != nil {
