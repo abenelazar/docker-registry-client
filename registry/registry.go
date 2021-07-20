@@ -47,7 +47,7 @@ func New(registryURL, username, password string, opts *Options) (*Registry, erro
  * Create a new Registry, as with New, using an http.Transport that disables
  * SSL certificate verification.
  */
-func NewInsecure(registryURL, username, password string) (*Registry, error) {
+func NewInsecure(registryURL, username, password string, opts *Options) (*Registry, error) {
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			// TODO: Why?
@@ -55,7 +55,7 @@ func NewInsecure(registryURL, username, password string) (*Registry, error) {
 		},
 	}
 
-	return newFromTransport(registryURL, username, password, transport, Log)
+	return newFromTransport(registryURL, username, password, transport, opts)
 }
 
 /*
